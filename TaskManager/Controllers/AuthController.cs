@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
         var result = await _authService.RegisterAsync(registerDto);
 
         if (!result.success)
-            return BadRequest(result.message);
+            return BadRequest(new { error = result.message });
 
         return Ok(new { message = result.message });
     }
@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginAsync(loginDto);
 
         if (!result.success)
-            return BadRequest(result.token);
+            return BadRequest(new { error = result.token });
 
         return Ok(new { token = result.token });
     }

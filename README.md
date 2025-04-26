@@ -1,26 +1,44 @@
-# TaskManager - Collaborative Task Management Application
+# DOIT! - Collaborative Task Management Application
 
-A Trello-like task management application built with ASP.NET Core, featuring user authentication, board/list/task management, and GitHub integration.
+A beautiful, modern task management application inspired by Trello, built with ASP.NET Core backend and Next.js frontend with shadcn/ui components.
+
+![DOIT TaskManager Banner Image](screenshots/banner.png)
+<!-- Insert a banner screenshot of your application here -->
 
 ## Features
 
 - **User Authentication**
   - JWT-based secure user registration and login
-  - Password hashing for security
+  - Clean, modern authentication UI
+
+![Authentication Screenshot](screenshots/auth.png)
+<!-- Insert screenshot of login/register screens here -->
 
 - **Board Management**
   - Create multiple boards to organize different projects
+  - Beautiful, responsive grid layout of boards
   - Each board can connect to a GitHub repository
 
+![Boards Dashboard Screenshot](screenshots/boards.png)
+<!-- Insert screenshot of boards dashboard here -->
+
 - **List & Task Organization**
-  - Create multiple lists within each board
+  - Trello-like horizontal scrolling lists
   - Create, update, and delete tasks within lists
+  - Intuitive drag-and-drop interface (coming soon)
   - Move tasks between lists
+
+![Board View Screenshot](screenshots/board-view.png)
+<!-- Insert screenshot of a board with lists and tasks here -->
 
 - **Task Details**
   - Title, description, due date
-  - Priority levels (Low, Medium, High, Urgent)
+  - Priority levels with visual indicators (Low, Medium, High, Urgent)
   - Status tracking (ToDo, InProgress, Blocked, Done)
+  - Clean modal interfaces for task creation and editing
+
+![Task Detail Screenshot](screenshots/task-detail.png)
+<!-- Insert screenshot of task details view here -->
 
 - **GitHub Integration**
   - Connect boards to GitHub repositories
@@ -29,39 +47,59 @@ A Trello-like task management application built with ASP.NET Core, featuring use
 
 ## Tech Stack
 
-- **Backend**: ASP.NET Core 8.0 Web API
+### Backend
+- **Framework**: ASP.NET Core 8.0 Web API
 - **Database**: SQLite (easy to switch to SQL Server)
 - **Authentication**: JWT (JSON Web Tokens)
 - **GitHub Integration**: Octokit
 - **API Documentation**: Swagger/OpenAPI
+
+### Frontend
+- **Framework**: Next.js 15 with React 19
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS 4
+- **API Client**: Axios
+- **State Management**: React hooks and context
 
 ## Getting Started
 
 ### Prerequisites
 
 - .NET 8.0 SDK or later
+- Node.js 16.x or later
+- npm or yarn
 
 ### Installation
 
 1. Clone this repository
    ```
-   git clone https://github.com/MeJaM35/DOIT.git
-   cd taskmanager
+   git clone https://github.com/YourUsername/DOIT-TaskManager.git
+   cd DOIT-TaskManager
    ```
 
-2. Build the solution
+2. Build and run the backend
    ```
+   cd TaskManager
    dotnet build
+   dotnet run
    ```
 
-3. Run the application
+3. Install frontend dependencies
    ```
-   dotnet run --project TaskManager
+   cd ClientApp
+   npm install --legacy-peer-deps
    ```
 
-4. Access the Swagger documentation
+4. Run the frontend development server
    ```
-   http://localhost:5103/swagger
+   npm run dev
+   ```
+
+5. Access the application
+   ```
+   Backend API: http://localhost:5103
+   Frontend: http://localhost:3000
+   Swagger API Docs: http://localhost:5103/swagger
    ```
 
 ### Database Setup
@@ -82,6 +120,25 @@ To use GitHub integration features, add a GitHub personal access token to your `
   "Token": "your_github_personal_access_token" 
 }
 ```
+
+## Architecture
+
+The application follows a clean architecture pattern:
+
+### Backend
+
+- **Controllers**: Handle HTTP requests and responses
+- **Services**: Contain business logic
+- **Models**: Define the database entities
+- **DTOs**: Objects used for data transfer between layers
+- **Data**: Database context and configuration
+
+### Frontend
+
+- **Pages**: Next.js pages for routing
+- **Components**: Reusable UI components
+- **Services**: API clients for communicating with the backend
+- **Utils**: Helper functions and utilities
 
 ## API Endpoints
 
@@ -118,6 +175,39 @@ To use GitHub integration features, add a GitHub personal access token to your `
 - JWT secret key should be kept secure and not committed to source control
 - GitHub personal access tokens should be managed securely
 
+## Roadmap
+
+- Drag and drop task management
+- Dark mode toggle
+- User profile management
+- Team collaboration features
+- GitHub issue integration
+- Real-time updates with SignalR
+
+## Screenshots
+
+### Login Page
+![Login Page](screenshots/login.png)
+<!-- Insert login page screenshot here -->
+
+### Boards Dashboard
+![Boards Dashboard](screenshots/dashboard.png)
+<!-- Insert boards dashboard screenshot here -->
+
+### Board View with Lists and Tasks
+![Board View](screenshots/board.png)
+<!-- Insert board view screenshot here -->
+
+### Task Creation
+![Task Creation](screenshots/task-create.png)
+<!-- Insert task creation screenshot here -->
+
 ## License
 
 [MIT License](LICENSE)
+
+## Acknowledgments
+
+- shadcn/ui for beautiful, accessible components
+- Next.js team for an amazing React framework
+- ASP.NET Core team for a robust backend framework

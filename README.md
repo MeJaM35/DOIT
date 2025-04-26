@@ -45,7 +45,7 @@ A Trello-like task management application built with ASP.NET Core, featuring use
 
 1. Clone this repository
    ```
-   git clone https://github.com/yourusername/taskmanager.git
+   git clone https://github.com/MeJaM35/DOIT.git
    cd taskmanager
    ```
 

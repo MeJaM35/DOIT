@@ -186,20 +186,20 @@ The application follows a clean architecture pattern:
 
 ## Screenshots
 
+### Landing Page
+![Landing Page](screenshots/landing.png)
+<!-- Insert login page screenshot here -->
+
 ### Login Page
 ![Login Page](screenshots/login.png)
 <!-- Insert login page screenshot here -->
 
-### Boards Dashboard
-![Boards Dashboard](screenshots/dashboard.png)
-<!-- Insert boards dashboard screenshot here -->
-
 ### Board View with Lists and Tasks
-![Board View](screenshots/board.png)
+![Board View](screenshots/boards.png)
 <!-- Insert board view screenshot here -->
 
-### Task Creation
-![Task Creation](screenshots/task-create.png)
+### Tasks
+![Tasks](screenshots/tasks.png)
 <!-- Insert task creation screenshot here -->
 
 ## License

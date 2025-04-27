@@ -242,6 +242,26 @@ export default function BoardPage() {
     }
   };
 
+  // Add this function to delete tasks
+  const handleDeleteTask = async (listId: string | number, taskId: string | number) => {
+    if (!listId || !taskId) return;
+    
+    if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      try {
+        await taskService.deleteTask(listId, taskId);
+        // Update the tasks state by removing the deleted task
+        setTasks({
+          ...tasks,
+          [listId]: tasks[listId].filter(task => task.id !== taskId)
+        });
+        toast.success('Task deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete task:', error);
+        toast.error('Failed to delete task');
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <AuthenticatedLayout>
@@ -395,7 +415,23 @@ export default function BoardPage() {
                       <div key={task.id} className="relative group">
                         <div className="absolute -left-2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-secondary rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                         <Card className="p-3 shadow-sm cursor-pointer hover:shadow-md transition-all border-border/50 group-hover:border-primary/30">
-                          <h3 className="font-medium">{task.title}</h3>
+                          <div className="flex justify-between">
+                            <h3 className="font-medium">{task.title}</h3>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                list.id && task.id && handleDeleteTask(list.id, task.id);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive/70 transition-opacity"
+                              title="Delete task"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                              </svg>
+                            </button>
+                          </div>
                           {task.description && (
                             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                               {task.description}

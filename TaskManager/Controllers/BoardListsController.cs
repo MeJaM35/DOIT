@@ -70,17 +70,37 @@ public class BoardListsController : ControllerBase
     {
         try
         {
+            Console.WriteLine($"BoardListsController.CreateList called with boardId: {boardId}");
+            Console.WriteLine($"Request body: Title='{listDto.Title}', Position={listDto.Position}");
+            
+            // Log the ModelState validation status
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("ModelState is invalid:");
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"  - {state.Key}: {error.ErrorMessage}");
+                    }
+                }
+                return BadRequest(ModelState);
+            }
+            
             int userId = GetCurrentUserId();
+            Console.WriteLine($"Current userId: {userId}");
             
             // Check if board exists and belongs to the user
             var board = await _context.Boards
                 .FirstOrDefaultAsync(b => b.Id == boardId && b.UserId == userId);
                 
             if (board == null)
+            {
+                Console.WriteLine($"Board with ID {boardId} not found for user {userId}");
                 return NotFound("Board not found");
+            }
                 
-            // Print debug info about the received data
-            Console.WriteLine($"Received listDto - Title: {listDto.Title}, Position: {listDto.Position}");
+            Console.WriteLine($"Found board: ID={board.Id}, Title='{board.Title}'");
                 
             // Get max position to add the new list at the end
             int maxPosition = 0;
@@ -89,6 +109,11 @@ public class BoardListsController : ControllerBase
                 maxPosition = await _context.BoardLists
                     .Where(l => l.BoardId == boardId)
                     .MaxAsync(l => l.Position);
+                Console.WriteLine($"Current max position for lists: {maxPosition}");
+            }
+            else
+            {
+                Console.WriteLine("No existing lists found, starting at position 1");
             }
                 
             var list = new BoardList
@@ -98,8 +123,12 @@ public class BoardListsController : ControllerBase
                 BoardId = boardId
             };
             
+            Console.WriteLine($"Creating new list: Title='{list.Title}', Position={list.Position}, BoardId={list.BoardId}");
+            
             _context.BoardLists.Add(list);
             await _context.SaveChangesAsync();
+            
+            Console.WriteLine($"List saved successfully with ID: {list.Id}");
             
             return CreatedAtAction(nameof(GetList), new { boardId = boardId, id = list.Id }, list);
         }

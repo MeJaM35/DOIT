@@ -84,11 +84,12 @@ class TaskService {
       // Map to backend format
       const backendTask: BackendTaskDto = {
         title: task.title,
-        description: task.description,
+        description: task.description || "",
         dueDate: task.dueDate,
-        priority: task.priority,
-        status: task.status,
-        position: task.position,
+        // Convert string enum values to numeric enum values that the backend expects
+        priority: convertPriorityToNumber(task.priority),
+        status: convertStatusToNumber(task.status),
+        position: task.position || 0,
         taskIdentifier: task.taskIdentifier
       };
 
@@ -171,6 +172,27 @@ class TaskService {
       console.error(`Error moving task ${id}:`, error);
       throw error;
     }
+  }
+}
+
+// Helper functions to convert string enum values to numeric enum values
+function convertPriorityToNumber(priority: TaskPriority): number {
+  switch(priority) {
+    case TaskPriority.Low: return 0;
+    case TaskPriority.Medium: return 1;
+    case TaskPriority.High: return 2;
+    case TaskPriority.Urgent: return 3;
+    default: return 1; // Medium as default
+  }
+}
+
+function convertStatusToNumber(status: TaskStatus): number {
+  switch(status) {
+    case TaskStatus.ToDo: return 0;
+    case TaskStatus.InProgress: return 1;
+    case TaskStatus.Blocked: return 2;
+    case TaskStatus.Done: return 3;
+    default: return 0; // ToDo as default
   }
 }
 

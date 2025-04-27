@@ -67,40 +67,76 @@ public class TasksController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TaskItem>> CreateTask(int listId, TaskItemDto taskDto)
     {
-        int userId = GetCurrentUserId();
-        
-        // Check if list exists and belongs to a board owned by the user
-        var list = await _context.BoardLists
-            .Include(l => l.Board)
-            .FirstOrDefaultAsync(l => l.Id == listId && l.Board.UserId == userId);
-            
-        if (list == null)
-            return NotFound("List not found");
-            
-        // Get max position to add the new task at the end
-        var maxPosition = await _context.Tasks
-            .Where(t => t.BoardListId == listId)
-            .MaxAsync(t => (int?)t.Position) ?? 0;
-        
-        // Generate task identifier for GitHub integration if not provided
-        string taskIdentifier = taskDto.TaskIdentifier ?? GenerateTaskIdentifier(list.Board.Title);
-        
-        var task = new TaskItem
+        try
         {
-            Title = taskDto.Title,
-            Description = taskDto.Description,
-            DueDate = taskDto.DueDate,
-            Priority = taskDto.Priority,
-            Status = taskDto.Status,
-            Position = taskDto.Position > 0 ? taskDto.Position : maxPosition + 1,
-            BoardListId = listId,
-            TaskIdentifier = taskIdentifier
-        };
-        
-        _context.Tasks.Add(task);
-        await _context.SaveChangesAsync();
-        
-        return CreatedAtAction(nameof(GetTask), new { listId = listId, id = task.Id }, task);
+            Console.WriteLine($"Received task creation request for list {listId}");
+            Console.WriteLine($"Task data: Title={taskDto.Title}, Priority={taskDto.Priority}, Status={taskDto.Status}");
+            
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("Model validation failed:");
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"- {state.Key}: {error.ErrorMessage}");
+                    }
+                }
+                return BadRequest(ModelState);
+            }
+            
+            int userId = GetCurrentUserId();
+            
+            // Check if list exists and belongs to a board owned by the user
+            var list = await _context.BoardLists
+                .Include(l => l.Board)
+                .FirstOrDefaultAsync(l => l.Id == listId && l.Board.UserId == userId);
+                
+            if (list == null)
+            {
+                Console.WriteLine("List not found or doesn't belong to the user");
+                return NotFound("List not found");
+            }
+                
+            // Get max position to add the new task at the end
+            var maxPosition = 0;
+            if (await _context.Tasks.AnyAsync(t => t.BoardListId == listId))
+            {
+                maxPosition = await _context.Tasks
+                    .Where(t => t.BoardListId == listId)
+                    .MaxAsync(t => t.Position);
+            }
+            
+            // Generate task identifier for GitHub integration if not provided
+            string taskIdentifier = taskDto.TaskIdentifier ?? GenerateTaskIdentifier(list.Board.Title);
+            
+            var task = new TaskItem
+            {
+                Title = taskDto.Title,
+                Description = taskDto.Description ?? "",
+                DueDate = taskDto.DueDate,
+                Priority = taskDto.Priority,
+                Status = taskDto.Status,
+                Position = taskDto.Position > 0 ? taskDto.Position : maxPosition + 1,
+                BoardListId = listId,
+                TaskIdentifier = taskIdentifier
+            };
+            
+            Console.WriteLine($"Created task object: ID={task.Id}, Title={task.Title}, Position={task.Position}");
+            
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+            
+            Console.WriteLine($"Task saved successfully with ID: {task.Id}");
+            
+            return CreatedAtAction(nameof(GetTask), new { listId = listId, id = task.Id }, task);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating task: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
     
     // Update a task

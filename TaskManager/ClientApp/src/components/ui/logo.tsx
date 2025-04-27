@@ -17,7 +17,7 @@ interface LogoProps {
 export function Logo({
   width = 48,
   height = 48,
-  showText = true,
+  showText = false,
   textClassName = "ml-2 text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:inline-block",
   className = "transition-transform group-hover:scale-110",
   href = "/boards"
@@ -49,6 +49,9 @@ export function Logo({
         className={className}
         priority
       />
+      {showText && (
+        <span className={textClassName}>DOIT!</span>
+      )}
     </>
   );
 

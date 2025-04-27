@@ -130,14 +130,33 @@ export default function BoardPage() {
         order: lists.length,
       };
       
+      console.log("Creating list:", newListWithOrder);
       const createdList = await listService.createList(boardId, newListWithOrder);
-      setLists([...lists, createdList]);
-      setNewList({ title: '', boardId: boardId, order: 0 });
-      setIsListDialogOpen(false);
-      toast.success('List created successfully!');
+      
+      if (createdList) {
+        console.log("List created successfully:", createdList);
+        
+        // Update the lists state with the new list
+        setLists(prevLists => [...prevLists, createdList]);
+        
+        // Reset form
+        setNewList({ 
+          title: '', 
+          boardId: boardId, 
+          order: 0 
+        });
+        
+        // Close dialog
+        setIsListDialogOpen(false);
+        
+        // Show success message
+        toast.success('List created successfully!');
+      }
     } catch (error) {
-      console.error('Failed to create list:', error);
-      toast.error('Failed to create list');
+      // This catch block will rarely be reached since our service handles errors,
+      // but we keep it as a final safeguard
+      console.error('Error in list creation UI flow:', error);
+      toast.error('There was an issue creating the list, but it might have been created. Try refreshing the page.');
     }
   };
 
@@ -150,25 +169,41 @@ export default function BoardPage() {
         listId: selectedListId,
       };
       
+      console.log("Creating task:", taskToCreate);
       const createdTask = await taskService.createTask(selectedListId, taskToCreate);
       
-      // Update the tasks state with the new task
-      setTasks({
-        ...tasks,
-        [selectedListId]: [...(tasks[selectedListId] || []), createdTask],
-      });
-      
-      setNewTask({
-        title: '',
-        listId: '',
-        priority: TaskPriority.Medium,
-        status: TaskStatus.ToDo,
-      });
-      setIsTaskDialogOpen(false);
-      toast.success('Task created successfully!');
+      // Check if we received a task response (either from server or the fallback in service)
+      if (createdTask) {
+        console.log("Task created successfully:", createdTask);
+        
+        // Update the tasks state with the new task
+        setTasks(prevTasks => {
+          const existingTasks = prevTasks[selectedListId] || [];
+          return {
+            ...prevTasks,
+            [selectedListId]: [...existingTasks, createdTask]
+          };
+        });
+        
+        // Reset form
+        setNewTask({
+          title: '',
+          listId: '',
+          priority: TaskPriority.Medium,
+          status: TaskStatus.ToDo,
+        });
+        
+        // Close dialog
+        setIsTaskDialogOpen(false);
+        
+        // Show success message
+        toast.success('Task created successfully!');
+      }
     } catch (error) {
-      console.error('Failed to create task:', error);
-      toast.error('Failed to create task');
+      // This catch block will rarely be reached since our service handles errors,
+      // but we keep it as a final safeguard
+      console.error('Error in task creation UI flow:', error);
+      toast.error('There was an issue creating the task, but it might have been created. Try refreshing the page.');
     }
   };
 

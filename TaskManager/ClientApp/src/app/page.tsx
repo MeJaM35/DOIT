@@ -21,8 +21,8 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
+        <div className="container flex items-center justify-between py-4 mx-auto">
+          <div className="flex items-center">
             <Image 
               src="/doit-logo.png" 
               alt="DOIT!" 
@@ -30,7 +30,6 @@ export default function HomePage() {
               height={36} 
               className="rounded-md"
             />
-            <span className="font-bold text-xl">DOIT!</span>
           </div>
           <div className="flex items-center gap-4">
             <nav className="hidden md:flex gap-6 items-center">
@@ -57,7 +56,7 @@ export default function HomePage() {
       <main>
         {/* Hero Section */}
         <section className="py-20 md:py-32 bg-background">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
@@ -81,7 +80,7 @@ export default function HomePage() {
 
         {/* Features Section */}
         <section id="features" className="py-20 bg-muted/40">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -138,7 +137,7 @@ export default function HomePage() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-20">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -183,7 +182,7 @@ export default function HomePage() {
 
         {/* CTA Section */}
         <section className="py-20 bg-muted">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -204,8 +203,8 @@ export default function HomePage() {
       </main>
 
       <footer className="py-6 md:py-0 border-t border-border">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 md:h-24 text-center md:text-left">
-          <div className="flex items-center gap-2">
+        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 md:h-24 text-center md:text-left mx-auto">
+          <div className="flex items-center">
             <Image 
               src="/doit-logo.png" 
               alt="DOIT!" 
@@ -213,9 +212,6 @@ export default function HomePage() {
               height={24} 
               className="rounded-md"
             />
-            <p className="text-sm text-muted-foreground leading-loose">
-              © 2025 DOIT! TaskManager. All rights reserved.
-            </p>
           </div>
           <div className="flex items-center gap-4">
             <Link href="#" className="text-xs text-muted-foreground hover:text-foreground">

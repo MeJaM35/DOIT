@@ -1,4 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DoIt! Task Manager
+
+A modern, full-stack task management application built with Next.js, .NET, and Entity Framework Core.
+
+## Features
+
+- User authentication and authorization
+- Create and manage boards for different projects
+- Organize tasks in customizable lists
+- Set task priorities and status
+- GitHub integration for repository linking
+- Profile and settings customization
+- Light, dark, and system theme options
+
+## Screenshots
+
+The `screenshots` folder contains images showing different views of the application:
+
+- Landing page for new visitors
+- Login and registration screens
+- Board management
+- Task lists
+- Profile and settings pages
+- Theme variations
+
+These screenshots provide a visual reference for the application's design and functionality.
+
+You can [view all screenshots here](./screenshots/) to see the application in action.
+
+## Pages & Layout
+
+- **Landing Page**: A centrally aligned, responsive landing page that introduces new users to the application features.
+- **Authentication Pages**: Secure login and registration forms with validation.
+- **Board Dashboard**: Main workspace for managing project boards.
+- **Task Management**: Interface for creating and organizing tasks.
+- **Profile & Settings**: User profile management and application settings, including theme selection.
 
 ## Getting Started
 

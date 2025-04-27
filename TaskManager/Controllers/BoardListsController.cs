@@ -68,31 +68,47 @@ public class BoardListsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BoardList>> CreateList(int boardId, BoardListDto listDto)
     {
-        int userId = GetCurrentUserId();
-        
-        // Check if board exists and belongs to the user
-        var board = await _context.Boards
-            .FirstOrDefaultAsync(b => b.Id == boardId && b.UserId == userId);
-            
-        if (board == null)
-            return NotFound("Board not found");
-            
-        // Get max position to add the new list at the end
-        var maxPosition = await _context.BoardLists
-            .Where(l => l.BoardId == boardId)
-            .MaxAsync(l => (int?)l.Position) ?? 0;
-            
-        var list = new BoardList
+        try
         {
-            Title = listDto.Title,
-            Position = listDto.Position > 0 ? listDto.Position : maxPosition + 1,
-            BoardId = boardId
-        };
-        
-        _context.BoardLists.Add(list);
-        await _context.SaveChangesAsync();
-        
-        return CreatedAtAction(nameof(GetList), new { boardId = boardId, id = list.Id }, list);
+            int userId = GetCurrentUserId();
+            
+            // Check if board exists and belongs to the user
+            var board = await _context.Boards
+                .FirstOrDefaultAsync(b => b.Id == boardId && b.UserId == userId);
+                
+            if (board == null)
+                return NotFound("Board not found");
+                
+            // Print debug info about the received data
+            Console.WriteLine($"Received listDto - Title: {listDto.Title}, Position: {listDto.Position}");
+                
+            // Get max position to add the new list at the end
+            int maxPosition = 0;
+            if (await _context.BoardLists.AnyAsync(l => l.BoardId == boardId))
+            {
+                maxPosition = await _context.BoardLists
+                    .Where(l => l.BoardId == boardId)
+                    .MaxAsync(l => l.Position);
+            }
+                
+            var list = new BoardList
+            {
+                Title = listDto.Title,
+                Position = listDto.Position > 0 ? listDto.Position : maxPosition + 1,
+                BoardId = boardId
+            };
+            
+            _context.BoardLists.Add(list);
+            await _context.SaveChangesAsync();
+            
+            return CreatedAtAction(nameof(GetList), new { boardId = boardId, id = list.Id }, list);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating list: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
     
     // Update a list

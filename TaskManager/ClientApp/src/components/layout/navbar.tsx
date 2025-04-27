@@ -1,8 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { 
   DropdownMenu, 
@@ -15,10 +13,12 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { Logo } from '@/components/ui/logo';
 import { Layers, Plus, LogOut, User, Settings } from 'lucide-react';
 import authService from '@/services/auth-service';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export default function Navbar() {
   const router = useRouter();
@@ -46,17 +46,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex h-16 items-center justify-between">
         <div className="flex items-center">
-          <Link href="/boards" className="group flex items-center transition-all">
-            <Image 
-              src="/doit-logo.png" 
-              alt="DOIT!" 
-              width={48}
-              height={48}
-              className="transition-transform group-hover:scale-110"
-              priority
-            />
-            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:inline-block">DOIT!</span>
-          </Link>
+          <Logo />
         </div>
         
         <div className="flex items-center gap-2">

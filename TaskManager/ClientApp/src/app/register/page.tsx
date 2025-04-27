@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Logo } from '@/components/ui/logo';
 import authService, { RegisterDto } from '@/services/auth-service';
 import { toast } from 'sonner';
 
@@ -101,13 +101,7 @@ export default function Register() {
         <Card className="w-full max-w-md border-border/40 shadow-lg">
           <CardHeader className="space-y-2 items-center text-center pb-2">
             <div className="flex justify-center mb-2">
-              <Image 
-                src="/doit-logo.png" 
-                alt="DOIT!" 
-                width={60} 
-                height={60} 
-                className="rounded-md" 
-              />
+              <Logo width={60} height={60} href={null} />
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
             <CardDescription>

@@ -38,19 +38,44 @@ public class BoardsController : ControllerBase
 
     // Get a specific board by ID
     [HttpGet("{id}")]
-    public async Task<ActionResult<Board>> GetBoard(int id)
+    public async Task<ActionResult<BoardDetailsDto>> GetBoard(int id)
     {
         int userId = GetCurrentUserId();
         
         var board = await _context.Boards
-            .Include(b => b.Lists)
-            .ThenInclude(l => l.Tasks)
+            .Include(b => b.Lists.OrderBy(l => l.Position))
+            .ThenInclude(l => l.Tasks.OrderBy(t => t.Position))
             .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
 
         if (board == null)
             return NotFound();
 
-        return Ok(board);
+        // Map to DTO to avoid circular references
+        var boardDto = new BoardDetailsDto
+        {
+            Id = board.Id,
+            Title = board.Title,
+            Description = board.Description,
+            GithubRepositoryUrl = board.GithubRepositoryUrl,
+            Lists = board.Lists.Select(l => new BoardListDetailsDto
+            {
+                Id = l.Id,
+                Title = l.Title,
+                Position = l.Position,
+                Tasks = l.Tasks.Select(t => new TaskItemDetailsDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    DueDate = t.DueDate,
+                    Priority = t.Priority.ToString(),
+                    Status = t.Status.ToString(),
+                    Position = t.Position
+                }).ToList()
+            }).ToList()
+        };
+
+        return Ok(boardDto);
     }
 
     // Create a new board

@@ -64,6 +64,21 @@ export default function BoardsPage() {
     });
   };
 
+  const handleDeleteBoard = async (id: number | undefined) => {
+    if (!id) return;
+    
+    if (confirm('Are you sure you want to delete this board? This action cannot be undone.')) {
+      try {
+        await boardService.deleteBoard(id);
+        setBoards(boards.filter(board => board.id !== id));
+        toast.success('Board deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete board:', error);
+        toast.error('Failed to delete board');
+      }
+    }
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="flex flex-col">
@@ -165,9 +180,9 @@ export default function BoardsPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="flex justify-between items-start">
                     <span className="truncate">{board.title}</span>
-                    {board.githubRepoUrl && (
+                    {board.githubRepositoryUrl && (
                       <Link 
-                        href={board.githubRepoUrl} 
+                        href={board.githubRepositoryUrl} 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground hover:text-foreground"
@@ -186,12 +201,24 @@ export default function BoardsPage() {
                 <CardContent>
                   <div className="h-4"></div> {/* spacing */}
                 </CardContent>
-                <CardFooter className="pt-3 border-t">
-                  <Button variant="default" asChild className="w-full gap-2">
+                <CardFooter className="pt-3 border-t flex gap-2">
+                  <Button variant="default" asChild className="flex-1 gap-2">
                     <Link href={`/boards/${board.id}`}>
                       View Board
                       <ExternalLinkIcon className="h-3 w-3" />
                     </Link>
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="icon"
+                    onClick={() => handleDeleteBoard(board.id)}
+                    title="Delete board"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
                   </Button>
                 </CardFooter>
               </Card>

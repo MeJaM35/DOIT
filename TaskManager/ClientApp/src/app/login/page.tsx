@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Logo } from '@/components/ui/logo';
 import authService, { LoginDto } from '@/services/auth-service';
 import { toast } from 'sonner';
 
@@ -112,15 +112,7 @@ export default function Login() {
         <Card variant="gradient" className="w-full max-w-md">
           <CardHeader className="space-y-2 items-center text-center pb-2">
             <div className="flex justify-center mb-2">
-              <div className="relative w-16 h-16 flex items-center justify-center bg-background rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:scale-105">
-                <Image 
-                  src="/doit-logo.png" 
-                  alt="DOIT!" 
-                  width={60} 
-                  height={60}
-                  className="p-1" 
-                />
-              </div>
+              <Logo width={60} height={60} href={null} />
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight">
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">

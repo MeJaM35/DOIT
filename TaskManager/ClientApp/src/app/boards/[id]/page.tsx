@@ -57,6 +57,10 @@ export default function BoardPage() {
   useEffect(() => {
     if (lists.length > 0) {
       loadTasks();
+    } else {
+      // If there are no lists, we should still set isLoading to false
+      // otherwise the loading state will persist indefinitely
+      setIsLoading(false);
     }
   }, [lists]);
 
@@ -219,6 +223,25 @@ export default function BoardPage() {
     }
   };
 
+  const handleDeleteList = async (id: number | undefined) => {
+    if (!id) return;
+    
+    if (confirm('Are you sure you want to delete this list? All tasks in it will be deleted too. This action cannot be undone.')) {
+      try {
+        await listService.deleteList(boardId, id);
+        setLists(lists.filter(list => list.id !== id));
+        // Also remove tasks for this list from the tasks state
+        const newTasks = { ...tasks };
+        delete newTasks[id as any];
+        setTasks(newTasks);
+        toast.success('List deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete list:', error);
+        toast.error('Failed to delete list');
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <AuthenticatedLayout>
@@ -249,7 +272,7 @@ export default function BoardPage() {
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-1">
                 <GitBranch className="h-4 w-4" />
-                <span>Connect GitHub</span>
+                <span>{board?.githubRepositoryUrl ? 'Change GitHub Repo' : 'Connect GitHub'}</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -271,6 +294,7 @@ export default function BoardPage() {
                       required
                       value={repoUrl}
                       onChange={(e) => setRepoUrl(e.target.value)}
+                      defaultValue={board?.githubRepositoryUrl}
                     />
                   </div>
                 </div>
@@ -339,15 +363,30 @@ export default function BoardPage() {
                 <CardHeader className="pb-2 border-b">
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-lg font-semibold">{list.title}</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => list.id && openTaskDialog(list.id)}
-                      className="h-8 px-2 text-xs rounded-full hover:bg-primary/10 hover:text-primary"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Task
-                    </Button>
+                    <div className="flex items-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => list.id && openTaskDialog(list.id)}
+                        className="h-8 px-2 text-xs rounded-full hover:bg-primary/10 hover:text-primary"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Task
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm" 
+                        onClick={() => list.id && handleDeleteList(list.id)}
+                        className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        title="Delete list"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="max-h-[calc(100vh-220px)] overflow-y-auto space-y-3 pt-3">

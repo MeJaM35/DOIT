@@ -10,16 +10,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 active:translate-y-[1px]",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border bg-background shadow-xs hover:bg-accent/10 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 active:translate-y-[1px]",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 active:translate-y-[1px]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "hover:bg-accent/10 hover:text-accent-foreground dark:hover:bg-accent/20",
         link: "text-primary underline-offset-4 hover:underline",
+        gradient: 
+          "relative bg-gradient-to-br from-primary to-secondary text-white shadow-sm hover:shadow active:translate-y-[1px] before:absolute before:inset-0 before:rounded-md before:bg-black/10 before:opacity-0 hover:before:opacity-100 before:transition dark:from-primary dark:to-secondary dark:before:bg-black/20",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

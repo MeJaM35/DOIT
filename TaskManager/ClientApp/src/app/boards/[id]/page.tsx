@@ -11,6 +11,8 @@ import boardService, { BoardDto } from '@/services/board-service';
 import listService, { BoardListDto } from '@/services/list-service';
 import taskService, { TaskItemDto, TaskPriority, TaskStatus } from '@/services/task-service';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { Layers, GitBranch, Plus } from 'lucide-react';
 
 export default function BoardPage() {
   const params = useParams();
@@ -61,35 +63,46 @@ export default function BoardPage() {
   const loadBoard = async () => {
     setIsLoading(true);
     try {
+      console.log('Fetching board with ID:', boardId);
       const data = await boardService.getBoard(boardId);
+      console.log('Board data received:', data);
       setBoard(data);
     } catch (error) {
       console.error('Failed to load board:', error);
-      toast.error('Failed to load board');
-      router.push('/boards');
+      toast.error('Failed to load board. Please try again.');
+      // Add a short delay before redirecting to avoid immediate navigation
+      setTimeout(() => {
+        router.push('/boards');
+      }, 2000);
     }
   };
 
   const loadLists = async () => {
     try {
+      console.log('Fetching lists for board ID:', boardId);
       const data = await listService.getLists(boardId);
       // Sort lists by order
       const sortedLists = data.sort((a, b) => a.order - b.order);
+      console.log('Lists data received:', sortedLists);
       setLists(sortedLists);
     } catch (error) {
       console.error('Failed to load lists:', error);
-      toast.error('Failed to load lists');
+      toast.error('Failed to load lists. Please refresh the page.');
+      setIsLoading(false);
     }
   };
 
   const loadTasks = async () => {
     try {
+      console.log('Fetching tasks for lists:', lists);
       const tasksByList: { [listId: string]: TaskItemDto[] } = {};
       
       // Load tasks for each list
       for (const list of lists) {
         if (list.id) {
+          console.log(`Fetching tasks for list ID: ${list.id}`);
           const listTasks = await taskService.getTasks(list.id);
+          console.log(`Tasks received for list ${list.id}:`, listTasks);
           tasksByList[list.id] = listTasks;
         }
       }
@@ -97,7 +110,7 @@ export default function BoardPage() {
       setTasks(tasksByList);
     } catch (error) {
       console.error('Failed to load tasks:', error);
-      toast.error('Failed to load tasks');
+      toast.error('Failed to load tasks. Some data may be incomplete.');
     } finally {
       setIsLoading(false);
     }
@@ -179,30 +192,30 @@ export default function BoardPage() {
   const getPriorityColor = (priority: TaskPriority) => {
     switch (priority) {
       case TaskPriority.Low:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
       case TaskPriority.Medium:
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
       case TaskPriority.High:
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
       case TaskPriority.Urgent:
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300';
     }
   };
 
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case TaskStatus.ToDo:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300';
       case TaskStatus.InProgress:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
       case TaskStatus.Blocked:
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
       case TaskStatus.Done:
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300';
     }
   };
 
@@ -210,7 +223,10 @@ export default function BoardPage() {
     return (
       <AuthenticatedLayout>
         <div className="flex justify-center items-center h-64">
-          <p>Loading board...</p>
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-8 w-48 bg-muted rounded mb-4"></div>
+            <div className="h-4 w-64 bg-muted rounded"></div>
+          </div>
         </div>
       </AuthenticatedLayout>
     );
@@ -220,14 +236,21 @@ export default function BoardPage() {
     <AuthenticatedLayout>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">{board?.title}</h1>
-          <p className="text-gray-500 dark:text-gray-400">{board?.description}</p>
+          <h1 className="text-3xl font-bold">
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {board?.title}
+            </span>
+          </h1>
+          <p className="text-muted-foreground mt-1">{board?.description}</p>
         </div>
         
         <div className="flex gap-2">
           <Dialog open={isGitHubDialogOpen} onOpenChange={setIsGitHubDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">Connect GitHub</Button>
+              <Button variant="outline" className="flex items-center gap-1">
+                <GitBranch className="h-4 w-4" />
+                <span>Connect GitHub</span>
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <form onSubmit={handleConnectGitHub}>
@@ -252,7 +275,7 @@ export default function BoardPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Connect</Button>
+                  <Button variant="gradient" type="submit">Connect</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -260,7 +283,10 @@ export default function BoardPage() {
 
           <Dialog open={isListDialogOpen} onOpenChange={setIsListDialogOpen}>
             <DialogTrigger asChild>
-              <Button>Add List</Button>
+              <Button variant="gradient" className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                <span>Add List</span>
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <form onSubmit={handleCreateList}>
@@ -285,7 +311,7 @@ export default function BoardPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Create List</Button>
+                  <Button variant="gradient" type="submit">Create List</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -293,47 +319,78 @@ export default function BoardPage() {
         </div>
       </div>
       
-      <div className="flex overflow-x-auto gap-4 pb-6">
+      <div className="flex overflow-x-auto gap-4 pb-6 snap-x">
         {lists.length === 0 ? (
           <div className="flex flex-col items-center justify-center w-full h-64 space-y-4">
-            <h2 className="text-xl">You don't have any lists yet</h2>
-            <Button onClick={() => setIsListDialogOpen(true)}>Create your first list</Button>
+            <div className="text-center space-y-3">
+              <Layers className="h-12 w-12 mx-auto text-muted-foreground/60" />
+              <h2 className="text-xl font-medium">You don't have any lists yet</h2>
+              <p className="text-muted-foreground">Create your first list to start organizing your tasks</p>
+            </div>
+            <Button variant="gradient" onClick={() => setIsListDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-1" />
+              Create your first list
+            </Button>
           </div>
         ) : (
           lists.map((list) => (
-            <div key={list.id} className="flex-shrink-0 w-80">
-              <Card>
-                <CardHeader className="pb-2">
+            <div key={list.id} className="flex-shrink-0 w-80 snap-start">
+              <Card className="h-full">
+                <CardHeader className="pb-2 border-b">
                   <div className="flex justify-between items-center">
-                    <CardTitle>{list.title}</CardTitle>
+                    <CardTitle className="text-lg font-semibold">{list.title}</CardTitle>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => list.id && openTaskDialog(list.id)}
+                      className="h-8 px-2 text-xs rounded-full hover:bg-primary/10 hover:text-primary"
                     >
-                      + Add Task
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Task
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="max-h-[70vh] overflow-y-auto space-y-3">
+                <CardContent className="max-h-[calc(100vh-220px)] overflow-y-auto space-y-3 pt-3">
                   {list.id && tasks[list.id] && tasks[list.id].length > 0 ? (
                     tasks[list.id].map((task) => (
-                      <Card key={task.id} className="p-3 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-                        <h3 className="font-medium">{task.title}</h3>
-                        {task.description && <p className="text-sm text-gray-500 mt-1">{task.description}</p>}
-                        <div className="flex items-center justify-between mt-2">
-                          <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(task.priority)}`}>
-                            {task.priority}
-                          </span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(task.status)}`}>
-                            {task.status}
-                          </span>
-                        </div>
-                      </Card>
+                      <div key={task.id} className="relative group">
+                        <div className="absolute -left-2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-secondary rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Card className="p-3 shadow-sm cursor-pointer hover:shadow-md transition-all border-border/50 group-hover:border-primary/30">
+                          <h3 className="font-medium">{task.title}</h3>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                              {task.description}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between mt-2">
+                            <span className={cn(
+                              "text-xs px-2 py-1 rounded-full font-medium",
+                              getPriorityColor(task.priority)
+                            )}>
+                              {task.priority}
+                            </span>
+                            <span className={cn(
+                              "text-xs px-2 py-1 rounded-full font-medium",
+                              getStatusColor(task.status)
+                            )}>
+                              {task.status}
+                            </span>
+                          </div>
+                        </Card>
+                      </div>
                     ))
                   ) : (
-                    <div className="py-6 text-center text-gray-500">
-                      No tasks yet
+                    <div className="py-8 text-center">
+                      <p className="text-muted-foreground text-sm">No tasks yet</p>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => list.id && openTaskDialog(list.id)}
+                        className="mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add a task
+                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -382,7 +439,7 @@ export default function BoardPage() {
                 </label>
                 <select
                   id="taskPriority"
-                  className="w-full p-2 border border-zinc-200 rounded-md bg-white dark:bg-zinc-800 dark:border-zinc-700"
+                  className="w-full p-2 border rounded-md bg-background"
                   value={newTask.priority}
                   onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as TaskPriority })}
                 >
@@ -398,7 +455,7 @@ export default function BoardPage() {
                 </label>
                 <select
                   id="taskStatus"
-                  className="w-full p-2 border border-zinc-200 rounded-md bg-white dark:bg-zinc-800 dark:border-zinc-700"
+                  className="w-full p-2 border rounded-md bg-background"
                   value={newTask.status}
                   onChange={(e) => setNewTask({ ...newTask, status: e.target.value as TaskStatus })}
                 >
@@ -410,7 +467,7 @@ export default function BoardPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Create Task</Button>
+              <Button variant="gradient" type="submit">Create Task</Button>
             </DialogFooter>
           </form>
         </DialogContent>

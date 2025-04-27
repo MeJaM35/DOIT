@@ -3,9 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
+import { GitHubLogoIcon, PlusIcon, ExternalLinkIcon } from '@radix-ui/react-icons';
 import AuthenticatedLayout from '@/components/layout/authenticated-layout';
 import boardService, { BoardDto } from '@/services/board-service';
 import { toast } from 'sonner';
@@ -51,7 +55,9 @@ export default function BoardsPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setNewBoard({
       ...newBoard,
       [e.target.name]: e.target.value,
@@ -60,95 +66,139 @@ export default function BoardsPage() {
 
   return (
     <AuthenticatedLayout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Your Boards</h1>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Create New Board</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleCreateBoard}>
-              <DialogHeader>
-                <DialogTitle>Create a new board</DialogTitle>
-                <DialogDescription>
-                  Add a new board to organize your tasks
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label htmlFor="title" className="text-sm font-medium">
-                    Title
-                  </label>
-                  <Input
-                    id="title"
-                    name="title"
-                    placeholder="Board title"
-                    required
-                    value={newBoard.title}
-                    onChange={handleInputChange}
-                  />
+      <div className="flex flex-col">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Your Boards</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage and organize your projects
+            </p>
+          </div>
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-1">
+                <PlusIcon className="h-4 w-4" />
+                Create Board
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handleCreateBoard}>
+                <DialogHeader>
+                  <DialogTitle>Create a new board</DialogTitle>
+                  <DialogDescription>
+                    Add a new board to organize your tasks and lists
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      placeholder="My awesome project"
+                      required
+                      value={newBoard.title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="What's this board about?"
+                      className="resize-none"
+                      rows={3}
+                      value={newBoard.description || ''}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="description" className="text-sm font-medium">
-                    Description
-                  </label>
-                  <Input
-                    id="description"
-                    name="description"
-                    placeholder="Board description"
-                    value={newBoard.description}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Create Board</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <p>Loading boards...</p>
-        </div>
-      ) : boards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <h2 className="text-xl">You don't have any boards yet</h2>
-          <Button onClick={() => setIsDialogOpen(true)}>Create your first board</Button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {boards.map((board) => (
-            <Card key={board.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>{board.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {board.description}
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" asChild>
-                  <Link href={`/boards/${board.id}`}>
-                    View Board
-                  </Link>
-                </Button>
-                {board.githubRepoUrl && (
-                  <Button variant="ghost" size="sm">
-                    <a href={board.githubRepoUrl} target="_blank" rel="noopener noreferrer">
-                      GitHub
-                    </a>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} type="button">
+                    Cancel
                   </Button>
-                )}
-              </CardFooter>
-            </Card>
-          ))}
+                  <Button type="submit">Create Board</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
-      )}
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array(3).fill(0).map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <Skeleton className="h-6 w-3/4" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-2/3" />
+                </CardContent>
+                <CardFooter className="flex justify-between pt-3">
+                  <Skeleton className="h-9 w-24" />
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : boards.length === 0 ? (
+          <Card className="border-dashed bg-background">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="rounded-full bg-primary/10 p-3 mb-4">
+                <PlusIcon className="h-6 w-6 text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">No boards yet</h2>
+              <p className="text-muted-foreground max-w-md mb-6">
+                Create your first board to start organizing your tasks and projects
+              </p>
+              <Button onClick={() => setIsDialogOpen(true)}>
+                Create your first board
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {boards.map((board) => (
+              <Card key={board.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex justify-between items-start">
+                    <span className="truncate">{board.title}</span>
+                    {board.githubRepoUrl && (
+                      <Link 
+                        href={board.githubRepoUrl} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <GitHubLogoIcon className="h-5 w-5" />
+                        <span className="sr-only">GitHub Repository</span>
+                      </Link>
+                    )}
+                  </CardTitle>
+                  {board.description && (
+                    <CardDescription className="line-clamp-2">
+                      {board.description}
+                    </CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="h-4"></div> {/* spacing */}
+                </CardContent>
+                <CardFooter className="pt-3 border-t">
+                  <Button variant="default" asChild className="w-full gap-2">
+                    <Link href={`/boards/${board.id}`}>
+                      View Board
+                      <ExternalLinkIcon className="h-3 w-3" />
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </AuthenticatedLayout>
   );
 }
